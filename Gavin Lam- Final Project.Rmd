@@ -1,0 +1,44 @@
+---
+title: "Final Project Data Science for Political Science"
+author: "Gavin Lam"
+date: "2024-12-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+Finaldata <- read.csv("31116083.csv")
+```
+
+```{r}
+table(Finaldata$PWMGNIMP1)
+BGCHECKS <- Finaldata$GLWBKGDCK1
+Finaldata$binarybgchecks <- NA
+Finaldata$binarybgchecks[Finaldata$GLWBKGDCK1 == "Make a difference"] <- 1
+Finaldata$binarybgchecks[Finaldata$GLWBKGDCK1 == "Not make a difference"] <- 0
+Finaldata <- Finaldata[!is.na(Finaldata$binarybgchecks), ]
+table(Finaldata$GENDER)
+Finaldata$binarygender <- NA
+Finaldata$binarygender[Finaldata$GENDER == "Men"] <- 1
+Finaldata$binarygender[Finaldata$GENDER == "Women"] <- 0
+
+```
+
+```{r}
+fit <- lm(binarybgchecks ~ binarygender, data = Finaldata)
+plot(x = Finaldata$binarygender, y = Finaldata$binarybgchecks,
+     ylab = "Background Check Efficacy",
+     xlab = "Gender",
+     main = "Background Check Efficacy by Gender",
+     pch = 20)
+abline(fit, lwd=3, col = "purple")
+     
+```
+Because the data was translated into binary 0's and 1's, with 1 representing male and a belief that background checks work and 0 representing female and a belief that background checks do not work, there is only four points on the scatterplot. However, the plot still shows that 88% of women believe that background checks are effective while 79% of men feel the same way.
+```{r}
+t_test_result <- t.test(binarybgchecks ~ binarygender, data = Finaldata)
+print(t_test_result)
+```
+To determine if these results are significant, I performed a hypothesis test. The null hypothesis is that there is no difference between men and women in the mean belief that background checks work. The alternative hypothesis is that there is a difference between men and women in the mean belief that background checks work. Using a confidence interval of 95%, I am 95% confident that the true mean difference between men and women in the belief that background checks work lies between 0.03 and 0.15. Additionally, because the p-value < 0.05 I reject the null hypothesis that there is no difference between men and women in the mean belief that background checks work.
